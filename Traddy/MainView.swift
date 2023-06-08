@@ -42,7 +42,7 @@ struct MainView: View {
                     } else {
                         PagerView(pageCount: cards.count, currentIndex: $currentPage) {
                             ForEach(cards) { card in
-                                CardView(card: card)
+                                CardView(card: card, cards: $cards)
                             }
                         }
                         .padding(.top, 10)
@@ -96,26 +96,65 @@ struct MainView: View {
 
 struct CardView: View {
     let card: Card
+    @State private var isLinkActive = false
+    @State private var isShowingActionSheet = false
+    @State private var editedText = ""
+    @Binding var cards: [Card] // Add binding for cards array
     
     var body: some View {
         VStack {
-                Text(card.text)
-                    .font(.title)
-                    .fontWeight(.semibold)
-                    .padding(.bottom, 10)
-                
-            NavigationLink(destination: SummaryView()) {
-                if let imageName = card.imageName {
-                    Image(imageName)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .cornerRadius(10)
-                        .padding(.horizontal, 35)
-                }
+            Text(card.text)
+                .font(.title)
+                .fontWeight(.semibold)
+                .padding(.bottom, 10)
+            
+            if let imageName = card.imageName {
+                Image(imageName)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .cornerRadius(10)
+                    .padding(.horizontal, 35)
+                    .onTapGesture {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            isLinkActive = true
+                        }
+                    }
+                    .background(
+                        NavigationLink(destination: SummaryView(), isActive: $isLinkActive) {
+                            EmptyView()
+                        }
+                        .frame(width: 0, height: 0)
+                        .opacity(0)
+                        .buttonStyle(PlainButtonStyle())
+                    )
+                    .onLongPressGesture {
+                        isShowingActionSheet = true
+                    }
+                    .actionSheet(isPresented: $isShowingActionSheet) {
+                        ActionSheet(
+                            title: Text("Delete Card"),
+                            message: Text("Are you sure you want to delete this card?"),
+                            buttons: [
+                                .destructive(Text("Delete"), action: {
+                                    deleteCard()
+                                }),
+                                .cancel()
+                            ]
+                        )
+                    }
             }
         }
     }
+    
+    private func deleteCard() {
+        // Find the index of the card in the cards array
+        if let index = cards.firstIndex(where: { $0.id == card.id }) {
+            // Remove the card from the cards array
+            cards.remove(at: index)
+        }
+    }
 }
+
 
 
 struct PagerView<Content: View>: View {
