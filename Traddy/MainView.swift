@@ -21,15 +21,15 @@ struct MainView: View {
                 VStack {
                     Text("My Trips")
                         .font(.largeTitle)
-                        .fontWeight(.semibold)
+                        .fontWeight(.bold)
                         .padding(.trailing, 190)
-                        .padding(.vertical, 30)
-                        .foregroundColor(.blue)
+                        .padding(.vertical, 50)
+                        .foregroundColor(Color(red: 0, green: 0.4, blue: 0.7))
                     
                     if cards.isEmpty {
                         VStack(spacing: 15) {
                             Text("Welcome to Traddy!")
-                                .foregroundColor(.blue)
+                                .foregroundColor(Color(red: 0, green: 0.4, blue: 0.7))
                                 .fontWeight(.semibold)
                                 .font(.title2)
                                 .multilineTextAlignment(.center)
@@ -51,7 +51,7 @@ struct MainView: View {
                 
                 VStack {
                     Spacer()
-                        .frame(height: 620)
+                        .frame(height: 630)
                     
                     Button(action: { isCreatingCard = true }) {
                         Text("Create a trip")
@@ -60,7 +60,7 @@ struct MainView: View {
                             .foregroundColor(.white)
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.blue)
+                    .tint(Color(red: 0, green: 0.6, blue: 0.9))
                     .buttonBorderShape(.roundedRectangle(radius: 18))
                     
                 }
@@ -73,27 +73,6 @@ struct MainView: View {
 }
 
 
-//struct CardView: View {
-//    let card: Card
-//
-//    var body: some View {
-//        VStack {
-//            Text(card.text)
-//                .font(.title)
-//                .fontWeight(.semibold)
-//                .padding(.bottom, 10)
-//
-//            if let imageName = card.imageName {
-//                Image(imageName)
-//                    .resizable()
-//                    .aspectRatio(contentMode: .fit)
-//                    .cornerRadius(10)
-//                    .padding(.horizontal, 35)
-//            }
-//        }
-//    }
-//}
-
 struct CardView: View {
     let card: Card
     @State private var isLinkActive = false
@@ -103,29 +82,48 @@ struct CardView: View {
     
     var body: some View {
         VStack {
-            Text(card.text)
-                .font(.title)
-                .fontWeight(.semibold)
-                .padding(.bottom, 10)
-            
             if let imageName = card.imageName {
                 Image(imageName)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .cornerRadius(10)
+                    .cornerRadius(32)
                     .padding(.horizontal, 35)
                     .onTapGesture {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                             isLinkActive = true
                         }
                     }
+                    .overlay(alignment: .bottom){
+                        ZStack{
+                            RoundedRectangle(cornerRadius: 32)
+                                .frame(width: 247, height: 169)
+                                .foregroundColor(Color.white.opacity(0.8))
+                                .padding(.bottom, 20)
+                            VStack{
+                                Text("\(card.text)")
+                                    .font(.title)
+                                
+                                Button(action: {
+                                    
+                                }, label: {
+                                    ZStack{
+                                        RoundedRectangle(cornerRadius: 15)
+                                            .frame(width: 156, height: 40)
+                                            .foregroundColor(Color(red: 0, green: 0.6, blue: 0.9))
+                                        Text("Start Tracking")
+                                            .foregroundColor(Color.white)
+                                    }
+                                })
+                            }
+                        }
+                    }
                     .background(
                         NavigationLink(destination: SummaryView(), isActive: $isLinkActive) {
                             EmptyView()
                         }
-                        .frame(width: 0, height: 0)
-                        .opacity(0)
-                        .buttonStyle(PlainButtonStyle())
+                            .frame(width: 0, height: 0)
+                            .opacity(0)
+                            .buttonStyle(PlainButtonStyle())
                     )
                     .onLongPressGesture {
                         isShowingActionSheet = true
@@ -210,28 +208,35 @@ struct CreateCardView: View {
                     Image(systemName: "xmark")
                         .foregroundColor(.blue)
                 }
-                .padding(.trailing, 10)
+                .padding(.trailing, 20)
                 .padding(.top, 10)
             }
             Text("Create a New Trip")
                 .font(.title)
-                .padding(.trailing, 110)
-                .padding(.bottom, 30)
+                .padding(.trailing, 100)
+                .padding(.bottom, 40)
                 .padding(.top, 20)
+                .foregroundColor(Color(red: 0, green: 0.4, blue: 0.7))
+                .fontWeight(.semibold)
             
             Text("Your Trip's Name")
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .textFieldStyle(.roundedBorder)
                 .padding(.leading, 35)
+                .foregroundColor(Color(red: 0, green: 0.4, blue: 0.7))
+                .fontWeight(.medium)
             
             TextField("Ex: Trip Malang", text: $text)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .frame(width: 320)
+                .padding(.bottom, 20)
             
             Text("Your Start Location")
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .textFieldStyle(.roundedBorder)
                 .padding(.leading, 35)
+                .foregroundColor(Color(red: 0, green: 0.4, blue: 0.7))
+                .fontWeight(.medium)
             
             TextField("Location", text: $searchQuery) { isEditing in
                 if isEditing {
@@ -275,7 +280,7 @@ struct CreateCardView: View {
                     .frame(width: 150, height: 20)
                     .foregroundColor(.white)
                     .padding()
-                    .background(Color.blue)
+                    .background(Color(red: 0, green: 0.6, blue: 0.9))
                     .cornerRadius(20)
             }
             .padding()
@@ -307,7 +312,7 @@ struct CreateCardView: View {
     }
     
     func createCard() {
-        let newCard = Card(text: text, location: selectedLocation, imageName: "pic2")
+        let newCard = Card(text: text, location: selectedLocation, imageName: "pic5")
         cards.append(newCard)
         isCreatingCard = false
     }
