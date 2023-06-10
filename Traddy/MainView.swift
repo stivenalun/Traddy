@@ -34,7 +34,7 @@ struct MainView: View {
                                 .font(.title2)
                                 .multilineTextAlignment(.center)
                                 .padding(.horizontal, 35)
-                            Image("pic1")
+                            Image("home")
                             Spacer()
                                 .frame(height: 120)
                         }
@@ -54,17 +54,27 @@ struct MainView: View {
                         .frame(height: 630)
                     
                     Button(action: { isCreatingCard = true }) {
-                        Text("Create a trip")
-                            .font(.system(.title2).weight(.semibold))
-                            .frame(width: 180, height: 40)
-                            .foregroundColor(.white)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(Color(red: 0, green: 0.6, blue: 0.9))
-                    .buttonBorderShape(.roundedRectangle(radius: 18))
-                    
-                }
-            }
+                                            if cards.isEmpty {
+                                                Text("Create a trip")
+                                                    .font(.system(.title2).weight(.semibold))
+                                                    .frame(width: 180, height: 40)
+                                                    .foregroundColor(.white)
+                                                
+                                            } else {
+                                                Image(systemName: "plus")
+                                                    .font(.system(size: 30))
+                                                    .foregroundColor(.white)
+                                                    .frame(width: 30, height: 35)
+                                                    .background(Color(red: 0, green: 0.6, blue: 0.9))
+                                                    .cornerRadius(30)
+                                            }
+                                        }
+                                        .buttonStyle(.borderedProminent)
+                                        .tint(Color(red: 0, green: 0.6, blue: 0.9))
+                                        .buttonBorderShape(.roundedRectangle(radius: 18))
+                                        
+                                    }
+                                }
             .sheet(isPresented: $isCreatingCard) {
                 CreateCardView(isCreatingCard: $isCreatingCard, cards: $cards)
             }
@@ -79,6 +89,7 @@ struct CardView: View {
     @State private var isShowingActionSheet = false
     @State private var editedText = ""
     @Binding var cards: [Card] // Add binding for cards array
+    @State private var isTracking = false
     
     var body: some View {
         VStack {
@@ -94,29 +105,29 @@ struct CardView: View {
                         }
                     }
                     .overlay(alignment: .bottom){
-                        ZStack{
-                            RoundedRectangle(cornerRadius: 32)
-                                .frame(width: 247, height: 169)
-                                .foregroundColor(Color.white.opacity(0.8))
-                                .padding(.bottom, 20)
-                            VStack{
-                                Text("\(card.text)")
-                                    .font(.title)
-                                
-                                Button(action: {
-                                    
-                                }, label: {
-                                    ZStack{
-                                        RoundedRectangle(cornerRadius: 15)
-                                            .frame(width: 156, height: 40)
-                                            .foregroundColor(Color(red: 0, green: 0.6, blue: 0.9))
-                                        Text("Start Tracking")
-                                            .foregroundColor(Color.white)
-                                    }
-                                })
-                            }
-                        }
-                    }
+                                            ZStack{
+                                                RoundedRectangle(cornerRadius: 32)
+                                                    .frame(width: 247, height: 169)
+                                                    .foregroundColor(Color.white.opacity(0.8))
+                                                    .padding(.bottom, 20)
+                                                VStack{
+                                                    Text("\(card.text)")
+                                                        .font(.title)
+                                                    
+                                                    Button(action: {
+                                                        isTracking.toggle() // Toggle the tracking state
+                                                    }, label: {
+                                                        ZStack{
+                                                            RoundedRectangle(cornerRadius: 15)
+                                                                .frame(width: 156, height: 40)
+                                                                .foregroundColor(isTracking ? Color.red : Color(red: 0, green: 0.6, blue: 0.9)) // Change button color based on tracking state
+                                                            Text(isTracking ? "Stop Tracking" : "Start Tracking") // Change button text based on tracking state
+                                                                .foregroundColor(Color.white)
+                                                        }
+                                                    })
+                                                }
+                                            }
+                                        }
                     .background(
                         NavigationLink(destination: SummaryView(), isActive: $isLinkActive) {
                             EmptyView()
@@ -312,11 +323,22 @@ struct CreateCardView: View {
     }
     
     func createCard() {
-        let newCard = Card(text: text, location: selectedLocation, imageName: "pic5")
-        cards.append(newCard)
-        isCreatingCard = false
-    }
+            let newCard = Card(text: text, location: selectedLocation, imageName: getImageName()) // Pass the image name to the card
+            cards.append(newCard)
+            isCreatingCard = false
+        }
+    
+    private func getImageName() -> String? {
+            // Return a different image name for each card based on some logic or data source
+            // Example: Assigning image names based on the index of the card
+            let imageNames = ["pic1", "pic3", "pic4"] // Add your image names here
+            
+            let index = cards.count % imageNames.count
+            return imageNames[index]
+        }
+
 }
+
 
 struct MapView: UIViewRepresentable {
     let coordinate: CLLocationCoordinate2D
